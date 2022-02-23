@@ -1,43 +1,60 @@
-const uuid = require('uuid');
 const HttpError = require("../models/http-error")
-const { validationResult } = require("express-validator")
-const users = [
-    {
-        uid: uuid.v4(),
-        id: "u1",
-        name: "temp",
-        email: "test@test.com",
-        password: "temp"
+const User = require("../models/user")
+
+const getUsers = (async (req, res, next) => {
+    let users;
+    try {
+        users = await User.find({}, '-password');
     }
-]
-
-
-const getUsers = ((req, res, next) => {
-    res.json({ users: users })
+    catch (error) {
+        const err = new HttpError("Login falied", 500);
+        return next(err);
+    }
+    res.json({ users })
 })
-const signup = ((req, res, next) => {
-    const { name, email, password } = req.body;
 
-    const createdUser = {
-        id: uuid.v4(),
+const signup = (async (req, res, next) => {
+    const { name, email, password, places } = req.body;
+    let existingUser;
+    try {
+        existingUser = await User.findOne({ email: email })
+    }
+    catch (error) {
+        const err = new HttpError("Error", 500);
+        return next(err);
+    }
+
+    const createdUser = new User({
         name,
         email,
-        password
+        password,
+        places
+    });
+
+    try {
+        await createdUser.save();
     }
-    users.push(createdUser)
+    catch (error) {
+        const err = new HttpError("Signup fail", 500);
+        return next(err);
+    }
     res.status(201).json({ user: createdUser })
 })
-const login = ((req, res, next) => {
-    const error = validationResult(req);
-    if (!error.isEmpty()) {
-        throw new HttpError("Invalid input", 422)
-    }
+
+const login = (async (req, res, next) => {
     const { email, password } = req.body;
+    let existingUser;
+    try {
+        existingUser = await User.findOne({ email: email })
+    }
+    catch (error) {
+        const err = new HttpError("Login falied", 500);
+        return next(err);
+    }
 
-    const identified = users.find(u => u.email === email)
-
-    if (!identified || identified.password !== password) {
-        throw new HttpError("Nathi kahi aaya", 401)
+    if (!existingUser || existingUser.password !== password) {
+        const err = new HttpError("Invalid username/password", 500);
+        return next(err);
     }
     res.json({ message: "Login boyyy" })
 })
