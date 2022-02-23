@@ -5,6 +5,9 @@ const placeRouters = require('./routes/place-router')
 const userRouters = require('./routes/user-router')
 const app = express();
 
+const dotenv = require("dotenv")
+require("dotenv").config();
+
 app.use(bodyParser.json());
 app.use('/api', placeRouters);
 app.use('/api/user', userRouters); //High priority
@@ -17,7 +20,7 @@ app.use((error, req, res, next) => {
     res.json({ message: error.message || 'page not find' })
 })
 
-mongoose.connect("mongodb://Learn_db:learndb@cluster0-shard-00-00.z0oyc.mongodb.net:27017,cluster0-shard-00-01.z0oyc.mongodb.net:27017,cluster0-shard-00-02.z0oyc.mongodb.net:27017/place_user?ssl=true&replicaSet=atlas-sbpzih-shard-0&authSource=admin&retryWrites=true&w=majority")
+mongoose.connect(`mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0-shard-00-00.z0oyc.mongodb.net:27017,cluster0-shard-00-01.z0oyc.mongodb.net:27017,cluster0-shard-00-02.z0oyc.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-sbpzih-shard-0&authSource=admin&retryWrites=true&w=majority`)
     .then(() => {
         app.listen(3000);
 
