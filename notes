@@ -1,0 +1,10 @@
+npm init
+npm i
+npm i express
+npm i nodemon                           - "start": "nodemon app.js"  add in package.json
+npm i express-validator
+
+node app.js - run backend server (without nodemon)
+npm run start - run backend server (with nodemon)
+
+http://localhost:3000/api/place-api/p1 for output
